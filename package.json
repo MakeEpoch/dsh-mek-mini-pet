@@ -1,5 +1,5 @@
 {
-  "name": "@dsh/mini-pet",
+  "name": "dsh-mek-mini-pet",
   "version": "0.4.4",
   "description": "小音与豆沙 · DSH 会话宠物和角色设置",
   "type": "module",

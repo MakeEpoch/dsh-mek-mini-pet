@@ -31,7 +31,7 @@
 在 Web 服务所在机器运行：
 
 ```sh
-npm_config_ignore_scripts=true dsh plugin --profile web remove @dsh/mini-pet
+npm_config_ignore_scripts=true dsh plugin --profile web remove dsh-mek-mini-pet
 ```
 
 随后刷新页面；如果服务仍使用旧的启动配置，重启该 Web 服务。卸载只去掉 profile 中的插件选择与依赖，保留本项目源码和浏览器偏好。安装器使用 profile 内的独立安装包；故障修复期间先在独立演示页和测试宿主验证，再打包安装。

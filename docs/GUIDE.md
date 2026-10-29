@@ -21,10 +21,10 @@
 
 无需构建，可复制 `src/` 到 Web 静态资源目录，通过 `<script type="module">` 导入。必须通过 HTTP(S) 访问，不能直接双击 HTML。浏览器需支持 Custom Elements、Shadow DOM、ES Modules、Pointer Events 和 AbortController。
 
-也可运行 `npm pack`，在宿主中 `npm install /absolute/path/dsh-mini-pet-0.4.4.tgz`，然后：
+也可运行 `npm pack`，在宿主中 `npm install /absolute/path/dsh-mek-mini-pet-0.4.4.tgz`，然后：
 
 ```js
-import { createPet } from '@dsh/mini-pet/web';
+import { createPet } from 'dsh-mek-mini-pet/web';
 const pet = createPet({ onOpenTask: ({ id }) => router.push(`/tasks/${encodeURIComponent(id)}`) });
 ```
 
@@ -66,7 +66,7 @@ const pet = createPet({ onOpenTask: ({ id }) => router.push(`/tasks/${encodeURIC
 import { onMounted, onBeforeUnmount } from 'vue';
 let pet, disposed = false;
 onMounted(async () => {
-  const { createPet } = await import('@dsh/mini-pet/web');
+  const { createPet } = await import('dsh-mek-mini-pet/web');
   if (!disposed) pet = createPet({ onOpenTask: task => console.log(task.id) });
 });
 onBeforeUnmount(() => { disposed = true; pet?.destroy(); });
@@ -81,7 +81,7 @@ import { useEffect } from 'react';
 export function PetMount() {
   useEffect(() => {
     let disposed = false, pet;
-    import('@dsh/mini-pet/web').then(({ createPet }) => {
+    import('dsh-mek-mini-pet/web').then(({ createPet }) => {
       if (!disposed) pet = createPet({ onOpenTask: ({ id }) => console.log(id) });
     });
     return () => { disposed = true; pet?.destroy(); };
@@ -119,7 +119,7 @@ function onTaskEvent(event) {
 
 ```js
 const { app, BrowserWindow, ipcMain, screen } = require('electron');
-const { createDesktopPet } = require('@dsh/mini-pet/electron');
+const { createDesktopPet } = require('dsh-mek-mini-pet/electron');
 let pet;
 app.whenReady().then(async () => {
   pet = createDesktopPet({ BrowserWindow, ipcMain, screen }, {

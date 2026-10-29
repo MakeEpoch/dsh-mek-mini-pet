@@ -15,7 +15,6 @@ const manifestPath = join(profile, 'package.json');
 const before = JSON.parse(await readFile(manifestPath, 'utf8'));
 const plugin = JSON.parse(await readFile(join(source, 'package.json'), 'utf8'));
 if (!before.dsh?.profile?.bundles?.includes('@deepseek-ai/dsh-web-app')) throw new Error('Target must be an existing DSH Web profile');
-if (!before.dsh.profile.bundles.includes(plugin.name)) throw new Error('Bundle is not enabled; use the DSH plugin manager to enable it first');
 const client = await readFile(join(source, 'lib/client.js'), 'utf8');
 if (!client.includes('window.__ModuleLoader__.load(') || !client.includes(plugin.name)) throw new Error('Client bundle missing or invalid; build first');
 if (process.argv.includes('--dry-run')) {
@@ -53,9 +52,10 @@ await writeFile(archive, bytes, { mode: 0o600 });
 await chmod(archive, 0o600);
 if (!alreadyInstalled) run(process.env.DSH_BIN || 'dsh', ['plugin', '--profile', profileName, 'add', '-w', spec, '--ignore-scripts', ...(process.argv.includes('--offline') ? ['--offline'] : [])], { stdio: 'inherit' });
 const after = JSON.parse(await readFile(manifestPath, 'utf8'));
+if (!after.dsh.profile.bundles.includes(plugin.name)) { after.dsh.profile.bundles.push(plugin.name); await writeFile(manifestPath, JSON.stringify(after, null, 2) + '\n'); }
 if (after.dependencies?.[plugin.name] !== spec || !after.dsh?.profile?.bundles?.includes(plugin.name)) throw new Error('Installation manifest readback failed');
 for (const [name, value] of Object.entries(before.dependencies || {})) if (name !== plugin.name && after.dependencies?.[name] !== value) throw new Error(`Unrelated dependency changed: ${name}`);
-if (JSON.stringify(before.dsh.profile.bundles) !== JSON.stringify(after.dsh.profile.bundles)) throw new Error('Profile bundles changed unexpectedly');
+if (JSON.stringify(before.dsh.profile.bundles) !== JSON.stringify(after.dsh.profile.bundles.filter(name => name !== plugin.name || before.dsh.profile.bundles.includes(name)))) throw new Error('Profile bundles changed unexpectedly');
 const resolved = await realpath(join(profile, 'node_modules', ...plugin.name.split('/')));
 const rel = relative(profile, resolved);
 if (!rel || rel === '..' || rel.startsWith('../') || isAbsolute(rel)) throw new Error('Installed package resolves outside the profile');

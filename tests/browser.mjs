@@ -179,7 +179,7 @@ try {
     // must never be attached to that old immutable Custom Element constructor.
     customElements.define('dsh-pet-v6', class extends HTMLElement {});
     window.__ModuleLoader__ = { load({ id, factory }) {
-      if (id !== '@dsh/mini-pet') throw new Error('Unexpected module id');
+      if (id !== 'dsh-mek-mini-pet') throw new Error('Unexpected module id');
       window.petPlugin = factory(id => { if (id === 'react') return { createElement: (tag, props) => ({ tag, props }) }; throw new Error('Unexpected external dependency: ' + id); });
     } };
   });

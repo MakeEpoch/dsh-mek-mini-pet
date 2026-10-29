@@ -34,10 +34,10 @@ npm run install:dsh:web
 
 ## 检查与卸载
 
-在 dsh 的「插件」页面找到 `@dsh/mini-pet`，可关闭或移除。命令行卸载：
+在 dsh 的「插件」页面找到 `dsh-mek-mini-pet`，可关闭或移除。命令行卸载：
 
 ```sh
-npm_config_ignore_scripts=true dsh plugin --profile web remove @dsh/mini-pet
+npm_config_ignore_scripts=true dsh plugin --profile web remove dsh-mek-mini-pet
 ```
 
 随后重启 dsh Web 并刷新页面。安装器的独立回读结果在 `artifacts/dsh-install.json`；profile 原始文件备份留在 `~/.dsh/profiles/web/.plugin-manager/mini-pet-backup-*`。正常卸载使用 dsh 管理器；不要直接恢复整个旧 profile，以免覆盖安装之后其他插件的更改。
@@ -51,7 +51,7 @@ npm run build
 npm test
 ```
 
-只在插件目录安装构建依赖。若仅使用随包附带的已构建产物，安装到 dsh 时不需要执行 npm install。修改后重新构建、重新打包安装，再刷新宿主。普通 Web/Electron 组件 API 从 `@dsh/mini-pet/web` 导入；包根入口留给 dsh Cordis Host。旧版 0.1.0 的根入口导入方式从此版本调整为 `/web`。
+只在插件目录安装构建依赖。若仅使用随包附带的已构建产物，安装到 dsh 时不需要执行 npm install。修改后重新构建、重新打包安装，再刷新宿主。普通 Web/Electron 组件 API 从 `dsh-mek-mini-pet/web` 导入；包根入口留给 dsh Cordis Host。旧版 0.1.0 的根入口导入方式从此版本调整为 `/web`。
 
 0.4.4 更新后请重启 dsh Web 并完整刷新页面，以移除旧版设置入口并加载新版组件。小音图集与豆沙角色随客户端 bundle 交付。
 
