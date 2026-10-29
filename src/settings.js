@@ -7,15 +7,16 @@ export class PetSettings extends HTMLElement {
   #pet; #abort; #listen;
   constructor() {
     super(); this.attachShadow({ mode: 'open' });
-    this.shadowRoot.innerHTML = `<style>${css}</style><section class="panel" aria-label="小宠物设置"><header><h2>小宠物</h2><p>选一个熟悉的伙伴，让陪伴按你的习惯来。</p></header><h3>选择角色</h3><div class="cards"><button class="card" data-character="dousha" aria-pressed="false"><span class="thumb">${petArt}</span><span><strong>豆沙</strong><small>原创豆沙兔</small></span></button></div><h3>外观与行为</h3><div class="rows">
+    this.shadowRoot.innerHTML = `<style>${css}</style><section class="panel" aria-label="小宠物设置"><header><h2>小宠物</h2><p>选一个熟悉的伙伴，让陪伴按你的习惯来。</p></header><h3>选择角色</h3><div class="cards"><button class="card" data-character="xiaoyin" aria-pressed="false"><span class="thumb sprite-thumb"></span><span><strong>小音</strong><small>图集动画角色</small></span></button><button class="card" data-character="dousha" aria-pressed="false"><span class="thumb">${petArt}</span><span><strong>豆沙</strong><small>原创豆沙兔</small></span></button></div><h3>外观与行为</h3><div class="rows">
       <label class="row"><span>显示大小<small>角色大小，不影响页面布局</small></span><select class="size" data-setting="size" aria-label="宠物体型"><option value="mini">迷你（56px）</option><option value="tiny">袖珍（80px）</option><option value="small">小小只（112px）</option><option value="medium">刚刚好</option><option value="large">大一点</option></select></label>
-      <label class="row"><span>外衣<small class="theme-help">为豆沙选择外衣颜色</small></span><select class="theme" data-setting="theme" aria-label="宠物外衣"><option value="mint">鼠尾草</option><option value="peach">奶桃</option><option value="lilac">芋泥</option></select></label>
+      <label class="row"><span>外衣<small class="theme-help">豆沙可换色，小音保持原始配色</small></span><select class="theme" data-setting="theme" aria-label="宠物外衣"><option value="mint">鼠尾草</option><option value="peach">奶桃</option><option value="lilac">芋泥</option></select></label>
       <label class="row"><span>减少动画<small>系统减少动态效果设置也会生效</small></span><input type="checkbox" data-setting="still" aria-label="减少动画"></label>
       <label class="row"><span>动画速度</span><select data-setting="speed" aria-label="动画速度"><option value="0.75">慢一点</option><option value="1">标准</option><option value="1.25">快一点</option></select></label>
       <label class="row"><span>允许摸摸互动<small>关闭后隐藏爱心按钮；摸摸只弹爱心</small></span><input type="checkbox" data-setting="interactions" aria-label="允许摸摸互动"></label>
       <label class="row"><span>显示任务气泡<small>收起宠物后可点角落按钮唤醒</small></span><input type="checkbox" data-setting="showBubble" aria-label="显示任务气泡"></label>
       <label class="row"><span>锁定位置<small>避免误拖动；点击互动仍可使用</small></span><input type="checkbox" data-setting="locked" aria-label="锁定位置"></label>
     </div><div class="actions"><button data-action="pat">♡ 试试摸摸</button><button data-action="show">显示宠物</button><button data-action="reset">位置复位</button><button data-action="defaults">恢复默认</button></div><p class="feedback" role="status" aria-live="polite"></p><p class="foot">修改后自动保存到当前浏览器。角色状态来自 dsh 会话，互动不会改变任务结果。</p></section>`;
+    this.shadowRoot.querySelector('.sprite-thumb').style.backgroundImage = `url("${CHARACTERS.xiaoyin.sheet}")`;
   }
   #safe(fn) {
     return (...args) => {

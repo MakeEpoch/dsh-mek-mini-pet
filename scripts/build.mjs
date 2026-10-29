@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import './embed-assets.mjs';
 const require = createRequire(import.meta.url);
 const esbuild = process.env.DSH_ESBUILD_MODULE ? require(process.env.DSH_ESBUILD_MODULE) : require('esbuild');
 const root = fileURLToPath(new URL('../', import.meta.url));

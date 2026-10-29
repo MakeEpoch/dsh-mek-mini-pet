@@ -225,12 +225,30 @@ try {
   assert.equal(await dsh.evaluate(() => dshSettingsEntries.length), 0);
   const animated = await browser.newPage({ viewport: { width: 1000, height: 900 }, reducedMotion: 'no-preference' });
   animated.on('pageerror', error => errors.push(error.message));
-  await animated.goto(base); await animated.locator('dsh-pet-v7 .pet .vector').waitFor();
+  await animated.goto(base); await animated.evaluate(() => demoPet.configure({ character: 'xiaoyin' })); await animated.locator('dsh-pet-v7 .pet .sprite').waitFor();
+  const moving = animated.locator('dsh-pet-v7 .pet .sprite');
+  await animated.mouse.move(0, 0);
+  const firstFrame = await moving.getAttribute('data-frame');
+  await animated.waitForFunction(frame => document.querySelector('dsh-pet-v7').shadowRoot.querySelector('.sprite').dataset.frame !== frame, firstFrame);
+  for (const [status, row] of [['working', '7'], ['waiting', '6'], ['error', '5'], ['success', '4']]) {
+    await animated.locator(`.states [data-state="${status}"]`).click();
+    assert.equal(await moving.getAttribute('data-row'), row);
+  }
+  await animated.locator('.states [data-state="working"]').click();
+  await animated.locator('dsh-pet-v7 .pet').focus();
+  await animated.locator('dsh-pet-v7 .pat').click();
+  assert.equal(await moving.getAttribute('data-row'), '7');
+  assert.equal(await moving.evaluate(el => getComputedStyle(el).animationName), 'none');
+  assert.equal(await animated.locator('dsh-pet-v7 .pet .emote-badge').isVisible(), true);
   await animated.evaluate(() => demoPet.configure({ still: true }));
+  assert.equal(await moving.getAttribute('data-frame'), '0');
   await animated.locator('#settings').click();
+  await animated.locator('dsh-pet-settings-v5 [data-character="dousha"]').click();
+  await animated.locator('dsh-pet-settings-v5 [data-character="xiaoyin"]').click();
   await animated.locator('dsh-pet-settings-v5 [data-setting="speed"]').selectOption('1.25');
-  await animated.reload(); await animated.locator('dsh-pet-v7 .pet .vector').waitFor();
-  assert.deepEqual(await animated.evaluate(() => { const p = demoPet.element.preferences; return [p.character, p.still, p.speed]; }), ['dousha', true, 1.25]);
+  await animated.screenshot({ path: 'artifacts/xiaoyin-settings.png', fullPage: true });
+  await animated.reload(); await animated.locator('dsh-pet-v7 .pet .sprite').waitFor();
+  assert.deepEqual(await animated.evaluate(() => { const p = demoPet.element.preferences; return [p.character, p.still, p.speed]; }), ['xiaoyin', true, 1.25]);
   assert.deepEqual(errors, []);
   console.log('Browser checks passed: task states, real pointer/keyboard pats, reduced-motion feedback, roles, shortcut settings, preferences, drag/lock, vector companion, v0.4 upgrade, disposal, mobile and Electron renderer.');
 } finally { if (errors.length) console.error('Page errors:', errors); await browser.close(); }

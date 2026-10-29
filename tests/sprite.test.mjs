@@ -18,7 +18,7 @@ test('sprite cadence advances frames and stops during reduced motion or teardown
 });
 test('invalid settings are rejected as a whole before changing pet preferences', () => {
   for (const bad of [{ character: 'missing' }, { speed: 2 }, { interactions: 'yes' }, { theme: '__proto__' }, { locked: null }]) assert.throws(() => validateOptions(bad));
-  assert.doesNotThrow(() => validateOptions({ character: 'dousha', still: true, speed: 0.75, locked: true }));
+  assert.doesNotThrow(() => validateOptions({ character: 'xiaoyin', still: true, speed: 0.75, locked: true }));
 });
 
 test('animation timer faults stop the player and notify its local boundary once', t => {

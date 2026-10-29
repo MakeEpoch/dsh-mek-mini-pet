@@ -1,4 +1,6 @@
+import { xiaoyinSheet } from './xiaoyin-data.js';
 export const CHARACTERS = Object.freeze({
+  xiaoyin: Object.freeze({ id: 'xiaoyin', name: '小音', description: '温柔沉稳的小伙伴', sheet: xiaoyinSheet }),
   dousha: Object.freeze({ id: 'dousha', name: '豆沙', description: '安静陪伴的原创豆沙兔', sheet: null })
 });
 export const DEFAULTS = Object.freeze({ character: 'dousha', theme: 'mint', size: 'medium', hidden: false, still: false, speed: 1, interactions: true, showBubble: true, locked: false });

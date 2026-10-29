@@ -13,7 +13,7 @@
 
 安装到 dsh Web 后，收起态内嵌在侧栏头部，完整迷你人物与相邻任务卡片参与正常布局，卡片宽度跟随侧栏伸缩，点人物或 ↗ 展开，收起卡片不显示 ×；找不到侧栏位置时回退到普通悬浮按钮。展开与卸载会恢复原有侧栏样式。
 
-默认角色为豆沙。仍有 working/waiting/error 任务时不进入休息。新任务事件会唤醒休息状态，但不会擅自展开用户已收起的宠物。无声音、无系统通知权限请求；页面隐藏时暂停动画，并尊重系统减少动态效果设置。
+默认角色为豆沙，可在设置中切换小音。仍有 working/waiting/error 任务时不进入休息。新任务事件会唤醒休息状态，但不会擅自展开用户已收起的宠物。无声音、无系统通知权限请求；页面隐藏时暂停动画，并尊重系统减少动态效果设置。
 
 安装到 DeepSeek dsh Web 请先看 [dsh 安装说明](DSH_INSTALL.md)。下面是通用 Web/Electron 组件的开发接入。
 
@@ -21,7 +21,7 @@
 
 无需构建，可复制 `src/` 到 Web 静态资源目录，通过 `<script type="module">` 导入。必须通过 HTTP(S) 访问，不能直接双击 HTML。浏览器需支持 Custom Elements、Shadow DOM、ES Modules、Pointer Events 和 AbortController。
 
-也可运行 `npm pack`，在宿主中 `npm install /absolute/path/dsh-mini-pet-0.4.3.tgz`，然后：
+也可运行 `npm pack`，在宿主中 `npm install /absolute/path/dsh-mini-pet-0.4.4.tgz`，然后：
 
 ```js
 import { createPet } from '@dsh/mini-pet/web';
@@ -48,7 +48,7 @@ const pet = createPet({ onOpenTask: ({ id }) => router.push(`/tasks/${encodeURIC
 | `pet.element.pat()` / `sleep()` | 摸摸 / 切换休息 |
 | `pet.element.setPosition(x, y)` / `resetPosition()` | 设置视口内坐标 / 右下角复位 |
 
-角色：`dousha`（豆沙，矢量动画），theme 可改变豆沙的外衣颜色。speed 可选 0.75、1、1.25；interactions、showBubble、locked 分别控制摸摸、任务气泡和位置锁定。
+角色：`xiaoyin`（小音，图集动画）、`dousha`（豆沙，矢量动画）；theme 改变豆沙的外衣颜色，小音保持图集配色。speed 可选 0.75、1、1.25；interactions、showBubble、locked 分别控制摸摸、任务气泡和位置锁定。
 
 主题：`mint`（鼠尾草）、`peach`（奶桃）、`lilac`（芋泥）。尺寸：`mini` 56px、`tiny` 80px、`small` 112px、`medium` 150px、`large` 186px，是角色区域高度；整组件包含气泡与工具条。`still: true` 暂停 CSS 动画。每个独立宠物实例请分配不同 `storageKey`。
 

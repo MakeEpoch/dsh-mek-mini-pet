@@ -1,10 +1,10 @@
-# 豆沙 · DSH Mini Pet
+# 小音与豆沙 · DSH Mini Pet
 
-一个安静陪你工作的小宠物插件。包含原创豆沙兔角色。可嵌入 Web，并提供 Electron 适配。插件没有额外运行时依赖。
+一个安静陪你工作的小宠物插件。包含小音和原创豆沙兔角色，可在设置中切换；默认显示豆沙。可嵌入 Web，并提供 Electron 适配。插件没有额外运行时依赖。
 
-**安装到你正在用的 dsh Web：** 在 `.` 运行 `npm run install:dsh:web`，然后重启 dsh Web 并刷新页面。当前版本 0.4.3，会自动订阅真实会话状态；详见 [dsh 安装说明](docs/DSH_INSTALL.md)。
+**安装到你正在用的 dsh Web：** 在 `.` 运行 `npm run install:dsh:web`，然后重启 dsh Web 并刷新页面。当前版本 0.4.4，会自动订阅真实会话状态；详见 [dsh 安装说明](docs/DSH_INSTALL.md)。
 
-参考 Codex Mini/Pets 的「悬浮陪伴 + 任务状态 + 快速回到任务」交互，插件实现与豆沙角色为本项目原创。[官方参考](https://developers.openai.com/codex/app/settings#pets)。运行时不连接 Codex 账户。
+参考 Codex Mini/Pets 的「悬浮陪伴 + 任务状态 + 快速回到任务」交互，插件实现与豆沙角色为本项目原创，小音图集由维护者授权随项目分发。[官方参考](https://developers.openai.com/codex/app/settings#pets)。运行时不连接 Codex 账户。
 
 ## 先玩一下
 
@@ -90,4 +90,4 @@ npm run test:browser
 
 结构：`src/` 是通用组件，`dsh/` 是 dsh 适配器，`lib/` 是已构建客户端，`electron/` 是桌面桥接，`demo/` 是交互展示，`examples/electron/` 是带托盘的启动示例。
 
-代码采用 MIT License，详见 [LICENSE](LICENSE)。
+代码采用 MIT License，详见 [LICENSE](LICENSE)；小音图集的授权范围见 [素材说明](assets/xiaoyin/README.md)。

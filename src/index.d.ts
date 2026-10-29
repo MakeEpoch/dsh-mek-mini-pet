@@ -1,7 +1,7 @@
 export type PetStatus = 'working' | 'waiting' | 'success' | 'error' | 'review';
 export interface PetTask { id: string; status: PetStatus; title?: string; message?: string; revision?: string | number }
 export interface TaskSnapshot extends Required<PetTask> { sequence: number }
-export interface PetOptions { character?: 'dousha'; theme?: 'mint' | 'peach' | 'lilac'; size?: 'mini' | 'tiny' | 'small' | 'medium' | 'large'; still?: boolean; speed?: 0.75 | 1 | 1.25; interactions?: boolean; showBubble?: boolean; locked?: boolean; hidden?: boolean }
+export interface PetOptions { character?: 'xiaoyin' | 'dousha'; theme?: 'mint' | 'peach' | 'lilac'; size?: 'mini' | 'tiny' | 'small' | 'medium' | 'large'; still?: boolean; speed?: 0.75 | 1 | 1.25; interactions?: boolean; showBubble?: boolean; locked?: boolean; hidden?: boolean }
 export declare class DshPet extends HTMLElement {
   readonly failure: Error | undefined;
   setErrorHandler(handler?: (error: Error) => void): void;
