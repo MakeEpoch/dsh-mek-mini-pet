@@ -1,0 +1,68 @@
+{
+  "name": "@dsh/mini-pet",
+  "version": "0.4.3",
+  "description": "豆沙 · DSH 会话宠物和角色设置",
+  "type": "module",
+  "main": "./dsh/index.js",
+  "types": "./dsh/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dsh/index.d.ts",
+      "default": "./dsh/index.js"
+    },
+    "./web": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./client": "./lib/client.js",
+    "./electron": "./electron/main.cjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "dsh",
+    "lib",
+    "cordis.patch.yml",
+    "electron",
+    "examples",
+    "docs",
+    "demo",
+    "scripts",
+    "tests",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "engines": {
+      "dsh": ">=0.2.1-rc.2 <0.3.0"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ]
+    }
+  },
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "install:dsh:web": "node scripts/install-web.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser.mjs",
+    "demo:electron": "electron examples/electron/main.cjs",
+    "pack:check": "npm pack --dry-run",
+    "test:boot-safety": "node tests/boot-safety.mjs",
+    "test:sidebar": "node tests/brand-browser.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  },
+  "license": "MIT"
+}

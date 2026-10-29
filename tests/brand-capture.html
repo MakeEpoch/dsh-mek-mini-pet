@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>mini-pet brand capture check</title>
+<style>
+  body { margin: 0; height: 100vh; display: flex; font: 14px system-ui; background: #fbfbf9; color: #26313a; }
+  /* Match the installed sidebar shell, including the nested inline identity that
+     previously got mistaken for the header row. Keep private class names out of the adapter. */
+  #sidebar{width:280px;flex:none;height:100%;padding:6px 12px;box-sizing:border-box;background:#f7f8fa;border-right:1px solid #e8e8e2;display:flex;flex-direction:column}
+  #brand-row{box-sizing:border-box;display:flex;flex:none;justify-content:flex-end;align-items:center;gap:8px;height:60px;margin-bottom:4px;padding:8px 0 8px 4px;overflow:hidden}
+  #brand{min-width:0;flex:1;display:inline-flex;align-items:center;padding:0;background:none;border:0;overflow:hidden;color:inherit;cursor:pointer}
+  #brand-identity{display:inline-flex;align-items:center;gap:8px;min-width:180px;height:24px}
+  #brand-mark-wrap{display:inline-flex;flex:none;align-items:center;justify-content:center}
+  #brand-mark{display:block;width:24px;height:17.66px;flex:none}
+  #brand-name{display:inline-flex;align-items:center;gap:6px;min-width:0;height:24px;font-size:18px;font-weight:600;line-height:24px}
+  #sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;flex:none;width:28px;height:28px;border:0;background:none}
+  #new-session{box-sizing:border-box;display:flex;flex:none;justify-content:center;align-items:center;height:38px;margin:0 2px 12px;padding:8px 12px;border:.5px solid #ddd;border-radius:10px;background:#fff;font:500 14px/22px system-ui}
+  #sidebar>button:not(#new-session),#sidebar>a{display:flex;align-items:center;gap:8px;flex:none;margin:0 2px;padding:7px 8px;border:0;border-radius:8px;background:none;color:inherit;font:14px/22px system-ui;text-decoration:none}
+  main { flex: 1; padding: 18px; }
+  .card { border: 1px solid #e6e6e0; background: #fff; border-radius: 14px; padding: 14px; height: 120px; }
+</style>
+<body>
+  <div id="sidebar" aria-label="会话">
+    <div id="brand-row" data-window-drag>
+      <!-- Mirrors the shipped mark: one flat svg, width=size, height from the 23.16:17.04 artwork. -->
+      <button id="brand" type="button"><span id="brand-identity" aria-hidden="true"><span id="brand-mark-wrap"><svg id="brand-mark" aria-hidden="true" width="24" height="17.66" viewBox="0 0 23.16 17.04" fill="none"><path d="M12 2c5.5 0 10 3.6 10 8 0 4.5-4.5 8-10 8-1.2 0-2.4-.2-3.5-.5L4 20l1.2-3.6C3.2 15 2 12.7 2 10c0-4.4 4.5-8 10-8Z" fill="#26313a"/></svg></span><span id="brand-name">deepseek</span></span></button><button id="sidebar-toggle" type="button" aria-label="收起侧栏">◫</button>
+    </div>
+
+    <button id="new-session" type="button">⊕ 新会话</button>
+    <button type="button">◇ 插件</button>
+    <button type="button">◷ 自动化任务</button><p style="color:#999">工作区</p><button type="button">📁 dsh</button><a href="#">小宠物收起动画改造</a><a href="#">WechatPad</a><button type="button">📁 one-send</button>
+  </div>
+  <main><div class="card">对话人物面板</div></main>
+  <script type="module">
+    // Load the built Client bundle through the same ModuleLoader shim the Host injects.
+    window.__ModuleLoader__ = { load({ factory }) { window.__pet = factory(() => ({})); } };
+    await import('../lib/client.js');
+    const app = window.__pet;
+    // Minimal host services the adapter asks for.
+    const noop = () => () => {};
+    const ctx = {
+      sessions: { list: { getSnapshot: () => ({ ids: [] }), subscribe: () => () => {} }, binding: () => undefined },
+      uiSession: { sessionStatus: { getSnapshot: () => new Map(), subscribe: () => () => {} } },
+      uiWorkspace: { openSession() {} },
+      effect(fn) { window.__dispose = fn(); return window.__dispose; },
+    };
+    try { app.apply(ctx); } catch (error) { window.__applyError = String(error && error.stack || error); }
+    window.__opened = []; ctx.uiWorkspace.openSession = id => window.__opened.push(id);
+    document.querySelector('dsh-pet-v7')?.updateTask({ id: 'pet-layout', status: 'review', title: '小宠物收起动画改造', message: '这轮运行已结束，点击查看结果。' });
+    window.__markFound = () => document.querySelector('[data-dsh-mini-pet-brand]')?.id || null;
+    document.documentElement.dataset.ready = '1';
+  </script>
+</body>
+</html>
