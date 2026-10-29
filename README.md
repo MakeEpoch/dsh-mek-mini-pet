@@ -86,7 +86,7 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-可以设置 `CHROME_PATH` 使用本机 Chrome，`DSH_DEMO_URL` 指定演示地址。截图输出到 `artifacts/`。本项目未发布到 npm，宿主可用本地路径或打包后的 tgz 安装。
+可以设置 `CHROME_PATH` 使用本机 Chrome，`DSH_DEMO_URL` 指定演示地址。截图输出到 `artifacts/`。本项目未发布到 npm，宿主使用打包后的 tgz 安装，不直连源码目录。
 
 结构：`src/` 是通用组件，`dsh/` 是 dsh 适配器，`lib/` 是已构建客户端，`electron/` 是桌面桥接，`demo/` 是交互展示，`examples/electron/` 是带托盘的启动示例。
 

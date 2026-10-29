@@ -11,13 +11,9 @@ cd .
 npm run install:dsh:web
 ```
 
-安装器要求现有 `~/.dsh/profiles/web`（或 `$DSH_HOME/profiles/web`）已经存在；它会先备份 profile 清单、锁文件和 patch，再调用：
+安装器要求现有 `~/.dsh/profiles/web`（或 `$DSH_HOME/profiles/web`）存在并已选择本插件。它先打包、备份 profile 清单与配置，再把带 SHA-256 的安装包复制到 profile 内，通过 DSH 插件管理器安装。运行中的插件使用独立快照，源码变更不会直接影响它。
 
-```sh
-dsh plugin --profile web add link:. --offline --ignore-scripts
-```
-
-这是本地开发链接；后续修改本目录并重新 build 后仍使用同一路径。安装不注册到 npm、不修改 Desktop profile，且不运行依赖脚本。`--offline` 避免更新现有依赖时联网；如果现有依赖缓存不全而失败，先检查 dsh 返回的具体诊断，不要随意重装整个 profile。可先 `node scripts/install-web.mjs --dry-run` 查看目标。
+可先执行 `node scripts/install-web.mjs --dry-run` 查看目标；缓存齐全时可用 `node scripts/install-web.mjs --offline`。安装和包校验不会自动重启 DSH，也不代表浏览器已加载。
 
 安装后，在原来运行 dsh Web 的地方重启 `dsh web`，再刷新该 Web 页面。启用 HMR 的宿主可能直接加载；本次安装会分别记录磁盘安装与浏览器激活证据，不将它们混为一谈。演示地址 `http://127.0.0.1:4173` 是独立展示页，不是你的 dsh Web 地址。
 
@@ -55,7 +51,7 @@ npm run build
 npm test
 ```
 
-只在插件目录安装构建依赖。若仅使用随包附带的已构建产物，安装到 dsh 时不需要执行 npm install。修改后重新构建并重启/刷新宿主。普通 Web/Electron 组件 API 从 `@dsh/mini-pet/web` 导入；包根入口留给 dsh Cordis Host。旧版 0.1.0 的根入口导入方式从此版本调整为 `/web`。
+只在插件目录安装构建依赖。若仅使用随包附带的已构建产物，安装到 dsh 时不需要执行 npm install。修改后重新构建、重新打包安装，再刷新宿主。普通 Web/Electron 组件 API 从 `@dsh/mini-pet/web` 导入；包根入口留给 dsh Cordis Host。旧版 0.1.0 的根入口导入方式从此版本调整为 `/web`。
 
 0.4.4 更新后请重启 dsh Web 并完整刷新页面，以移除旧版设置入口并加载新版组件。小音图集与豆沙角色随客户端 bundle 交付。
 

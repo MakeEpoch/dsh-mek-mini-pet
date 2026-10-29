@@ -1,53 +1,68 @@
-import { readFile, mkdir, copyFile, realpath, writeFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+/** Install an immutable package into an existing DSH Web profile. */
+import { copyFile, mkdir, readFile, realpath, writeFile, chmod } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-const project = await realpath(fileURLToPath(new URL('../', import.meta.url)));
-const dshHome = process.env.DSH_HOME || join(homedir(), '.dsh');
-const profile = join(dshHome, 'profiles', 'web');
+import { join, relative, isAbsolute } from 'node:path';
+import { homedir } from 'node:os';
+import { fileURLToPath } from 'node:url';
+
+const source = await realpath(fileURLToPath(new URL('../', import.meta.url)));
+const home = process.env.DSH_HOME || join(homedir(), '.dsh');
+const profileName = process.env.DSH_PROFILE || 'web';
+if (!/^[\w-]+$/.test(profileName)) throw new Error('Invalid profile name');
+const profile = await realpath(join(home, 'profiles', profileName));
 const manifestPath = join(profile, 'package.json');
-const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-const plugin = JSON.parse(await readFile(join(project, 'package.json'), 'utf8'));
-if (!manifest.dsh?.profile?.bundles?.includes('@deepseek-ai/dsh-web-app')) throw new Error('Expected an existing dsh Web profile; refusing to initialize or replace it');
-const client = await readFile(join(project, 'lib', 'client.js'), 'utf8');
-if (!client.includes('window.__ModuleLoader__.load(')) throw new Error('Missing dsh client bundle; run npm run build first');
-const spec = `link:${project}`;
-console.log(JSON.stringify({ profile, plugin: plugin.name, version: plugin.version, source: spec }, null, 2));
-if (process.argv.includes('--dry-run')) process.exit(0);
-const alreadyInstalled = manifest.dependencies?.[plugin.name] === spec && manifest.dsh.profile.bundles.includes(plugin.name);
-let backup;
+const before = JSON.parse(await readFile(manifestPath, 'utf8'));
+const plugin = JSON.parse(await readFile(join(source, 'package.json'), 'utf8'));
+if (!before.dsh?.profile?.bundles?.includes('@deepseek-ai/dsh-web-app')) throw new Error('Target must be an existing DSH Web profile');
+if (!before.dsh.profile.bundles.includes(plugin.name)) throw new Error('Bundle is not enabled; use the DSH plugin manager to enable it first');
+const client = await readFile(join(source, 'lib/client.js'), 'utf8');
+if (!client.includes('window.__ModuleLoader__.load(') || !client.includes(plugin.name)) throw new Error('Client bundle missing or invalid; build first');
+if (process.argv.includes('--dry-run')) {
+  console.log(JSON.stringify({ profile, plugin: plugin.name, version: plugin.version, mode: 'packed archive in profile' }, null, 2));
+  process.exit(0);
+}
+function run(command, args, options = {}) {
+  const result = spawnSync(command, args, { cwd: source, encoding: 'utf8', ...options });
+  if (result.error) throw result.error;
+  if (result.status !== 0) throw new Error(`${command} failed (${result.status}): ${result.stderr || ''}`);
+  return result.stdout;
+}
+const artifacts = join(source, 'artifacts');
+await mkdir(artifacts, { recursive: true });
+const pack = JSON.parse(run(process.env.NPM_BIN || 'npm', ['pack', '--json', '--ignore-scripts', '--pack-destination', artifacts]));
+if (pack.length !== 1) throw new Error('Expected one archive');
+const bytes = await readFile(join(artifacts, pack[0].filename));
+const sha256 = createHash('sha256').update(bytes).digest('hex');
+const cache = join(profile, '.plugin-manager', 'packages');
+await mkdir(cache, { recursive: true, mode: 0o700 });
+const archive = join(cache, `${plugin.name.split('/').pop()}-${plugin.version}-${sha256}.tgz`);
+const spec = `file:${archive}`;
+const alreadyInstalled = before.dependencies?.[plugin.name] === spec;
+let backup = null;
 if (!alreadyInstalled) {
-  backup = join(profile, '.plugin-manager', `mini-pet-backup-${new Date().toISOString().replace(/[:.]/g, '-')}`);
+  backup = join(profile, '.plugin-manager', `${plugin.name.split('/').pop()}-backup-${new Date().toISOString().replace(/[:.]/g, '-')}`);
   await mkdir(backup, { recursive: true, mode: 0o700 });
-  const saved = [];
   for (const name of ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'cordis.patch.yml', 'cordis.yml']) {
-    try { await copyFile(join(profile, name), join(backup, name)); saved.push(name); }
+    try { const target = join(backup, name); await copyFile(join(profile, name), target); await chmod(target, 0o600); }
     catch (error) { if (error.code !== 'ENOENT') throw error; }
   }
-  await writeFile(join(backup, 'backup.json'), JSON.stringify({ profile, project, files: saved }, null, 2), { mode: 0o600 });
   console.log(`Backup: ${backup}`);
-  const result = spawnSync('dsh', ['plugin', '--profile', 'web', 'add', spec, '--offline', '--ignore-scripts'], { stdio: 'inherit' });
-  if (result.error) throw result.error;
-  if (result.status !== 0) { console.error(`dsh installer failed. Backup kept at ${backup}`); process.exit(result.status || 1); }
 }
-// Independent readback: both the manifest selection and actual resolver path must agree.
-const installed = JSON.parse(await readFile(manifestPath, 'utf8'));
-const installedPath = await realpath(join(profile, 'node_modules', '@dsh', 'mini-pet'));
-if (installed.dependencies?.[plugin.name] !== spec || !installed.dsh.profile.bundles.includes(plugin.name) || installedPath !== project)
-  throw new Error('dsh package installation did not read back as enabled at the expected path');
-await mkdir(join(project, 'artifacts'), { recursive: true });
-let previousReceipt;
-try {
-  const value = JSON.parse(await readFile(join(project, 'artifacts', 'dsh-install.json'), 'utf8'));
-  if (alreadyInstalled && value.profile === profile && value.source === project) previousReceipt = value;
-} catch { /* No prior receipt is required for independent installation verification. */ }
-await writeFile(join(project, 'artifacts', 'dsh-install.json'), JSON.stringify({
-  ...previousReceipt,
-  installedAt: previousReceipt?.installedAt || new Date().toISOString(),
-  verifiedAt: new Date().toISOString(), profile, source: project, version: plugin.version,
-  backup: backup || previousReceipt?.backup || null, packageVerified: true, enabledInManifest: true,
-  compositionVerified: previousReceipt?.version === plugin.version && previousReceipt?.compositionVerified || false,
-  browserActivationVerified: previousReceipt?.version === plugin.version && previousReceipt?.browserActivationVerified || false
-}, null, 2));
-console.log(alreadyInstalled ? 'Already installed: Web profile link and bundle selection verified.' : 'Installed: Web profile link and bundle selection verified.');
+await writeFile(archive, bytes, { mode: 0o600 });
+await chmod(archive, 0o600);
+if (!alreadyInstalled) run(process.env.DSH_BIN || 'dsh', ['plugin', '--profile', profileName, 'add', '-w', spec, '--ignore-scripts', ...(process.argv.includes('--offline') ? ['--offline'] : [])], { stdio: 'inherit' });
+const after = JSON.parse(await readFile(manifestPath, 'utf8'));
+if (after.dependencies?.[plugin.name] !== spec || !after.dsh?.profile?.bundles?.includes(plugin.name)) throw new Error('Installation manifest readback failed');
+for (const [name, value] of Object.entries(before.dependencies || {})) if (name !== plugin.name && after.dependencies?.[name] !== value) throw new Error(`Unrelated dependency changed: ${name}`);
+if (JSON.stringify(before.dsh.profile.bundles) !== JSON.stringify(after.dsh.profile.bundles)) throw new Error('Profile bundles changed unexpectedly');
+const resolved = await realpath(join(profile, 'node_modules', ...plugin.name.split('/')));
+const rel = relative(profile, resolved);
+if (!rel || rel === '..' || rel.startsWith('../') || isAbsolute(rel)) throw new Error('Installed package resolves outside the profile');
+const installed = JSON.parse(await readFile(join(resolved, 'package.json'), 'utf8'));
+if (installed.name !== plugin.name || installed.version !== plugin.version) throw new Error('Installed package identity mismatch');
+const bundle = await readFile(join(resolved, 'lib/client.js'));
+if (createHash('sha256').update(bundle).digest('hex') !== createHash('sha256').update(client).digest('hex')) throw new Error('Installed client differs from source');
+const receipt = { profile, plugin: plugin.name, version: plugin.version, sha256, archive, backup, alreadyInstalled, resolver: resolved, browserActivationVerified: false };
+await writeFile(join(artifacts, 'dsh-install.json'), JSON.stringify(receipt, null, 2) + '\n', { mode: 0o600 });
+console.log(JSON.stringify(receipt, null, 2));
